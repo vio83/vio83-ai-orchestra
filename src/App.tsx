@@ -3,10 +3,11 @@ import { Menu } from 'lucide-react';
 import { useAppStore } from './stores/appStore';
 import Sidebar from './components/sidebar/Sidebar';
 import ChatView from './components/chat/ChatView';
+import { SettingsPanel } from './components/settings/SettingsPanel';
 import './styles/vio-dark.css';
 
 export default function App() {
-  const { sidebarOpen, toggleSidebar, settings } = useAppStore();
+  const { sidebarOpen, toggleSidebar, settings, settingsOpen } = useAppStore();
 
   return (
     <div style={{
@@ -51,7 +52,6 @@ export default function App() {
             </span>
             <span style={{
               fontSize: '11px',
-              color: 'var(--vio-text-dim)',
               marginLeft: 'auto',
               padding: '2px 8px',
               borderRadius: '10px',
@@ -66,6 +66,9 @@ export default function App() {
         {/* Chat view */}
         <ChatView />
       </div>
+
+      {/* Settings modal */}
+      {settingsOpen && <SettingsPanel />}
     </div>
   );
 }
