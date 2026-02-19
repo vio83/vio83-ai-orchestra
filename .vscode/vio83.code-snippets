@@ -1,0 +1,101 @@
+{
+  // ============================================================
+  // VIO 83 AI ORCHESTRA — Snippets Personalizzati
+  // Digita il prefix + Tab per inserire lo snippet
+  // ============================================================
+
+  "VIO React Component": {
+    "prefix": "vrc",
+    "body": [
+      "import { useState } from 'react';",
+      "",
+      "interface ${1:Component}Props {",
+      "  $2",
+      "}",
+      "",
+      "export function ${1:Component}({ $3 }: ${1:Component}Props) {",
+      "  $4",
+      "  return (",
+      "    <div>",
+      "      $0",
+      "    </div>",
+      "  );",
+      "}"
+    ],
+    "description": "VIO 83 — React component con TypeScript"
+  },
+
+  "VIO Zustand Store": {
+    "prefix": "vzs",
+    "body": [
+      "import { create } from 'zustand';",
+      "",
+      "interface ${1:Store}State {",
+      "  $2: $3;",
+      "  set${2/(.*)/${1:/capitalize}/}: (value: $3) => void;",
+      "}",
+      "",
+      "export const use${1:Store} = create<${1:Store}State>((set) => ({",
+      "  $2: $4,",
+      "  set${2/(.*)/${1:/capitalize}/}: (value) => set({ $2: value }),",
+      "}));"
+    ],
+    "description": "VIO 83 — Zustand store"
+  },
+
+  "VIO AI Service Call": {
+    "prefix": "vai",
+    "body": [
+      "import { sendToOrchestra } from '../services/ai/orchestrator';",
+      "",
+      "const response = await sendToOrchestra({",
+      "  message: $1,",
+      "  mode: '${2|local,cloud|}',",
+      "  provider: '${3|auto,claude,gpt4,grok,mistral,deepseek,ollama|}',",
+      "  crossCheck: ${4:false},",
+      "});",
+      "",
+      "console.log('[VIO] Response:', response.content);"
+    ],
+    "description": "VIO 83 — Chiamata all'orchestratore AI"
+  },
+
+  "VIO FastAPI Endpoint": {
+    "prefix": "vfa",
+    "body": [
+      "@app.${1|get,post,put,delete|}(\"/${2:endpoint}\")",
+      "async def ${3:handler}(${4:request: Request}):",
+      "    \"\"\"${5:Description.}\"\"\"",
+      "    try:",
+      "        $0",
+      "        return {\"status\": \"ok\"}",
+      "    except Exception as e:",
+      "        raise HTTPException(status_code=500, detail=str(e))"
+    ],
+    "description": "VIO 83 — FastAPI endpoint"
+  },
+
+  "VIO Console Log": {
+    "prefix": "vlog",
+    "body": [
+      "console.log('[VIO] ${1:context}:', $2);"
+    ],
+    "description": "VIO 83 — Console log con tag"
+  },
+
+  "VIO Python Log": {
+    "prefix": "vplog",
+    "body": [
+      "print(f\"[VIO] ${1:context}: {${2:value}}\")"
+    ],
+    "description": "VIO 83 — Python print con tag"
+  },
+
+  "VIO TODO Comment": {
+    "prefix": "vtodo",
+    "body": [
+      "// VIO TODO: $1"
+    ],
+    "description": "VIO 83 — TODO comment tracciabile"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  // ============================================================
+  // VIO 83 AI ORCHESTRA — Debug Configurations
+  // F5 per avviare qualsiasi componente in debug
+  // ============================================================
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🎵 Frontend (Vite Dev)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/src",
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*"
+      },
+      "preLaunchTask": "vite-dev"
+    },
+    {
+      "name": "🐍 Backend (FastAPI)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "backend.api.server:app",
+        "--reload",
+        "--host", "0.0.0.0",
+        "--port", "4000"
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "🦀 Tauri Desktop App",
+      "type": "lldb",
+      "request": "launch",
+      "cargo": {
+        "args": [
+          "build",
+          "--manifest-path=./src-tauri/Cargo.toml",
+          "--no-default-features"
+        ]
+      },
+      "preLaunchTask": "tauri-dev"
+    },
+    {
+      "name": "🧪 Test Frontend (Vitest)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "🐍 Test Backend (Pytest)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests/", "-v"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      },
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "🎵 Full Orchestra (Frontend + Backend)",
+      "configurations": ["🎵 Frontend (Vite Dev)", "🐍 Backend (FastAPI)"],
+      "stopAll": true
+    }
+  ]
+}

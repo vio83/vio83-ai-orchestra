@@ -115,7 +115,7 @@ A custom-designed dark theme optimized for long coding sessions:
 
 ```bash
 # Clone
-git clone https://github.com/YOUR_USERNAME/vio83-ai-orchestra.git
+git clone https://github.com/vio83/vio83-ai-orchestra.git
 cd vio83-ai-orchestra
 
 # Frontend
@@ -238,11 +238,11 @@ USER types a question
 ## 💚 Sponsor This Project
 
 <p align="center">
-  <a href="https://github.com/sponsors/YOUR_USERNAME">
+  <a href="https://github.com/sponsors/vio83">
     <img src="https://img.shields.io/badge/GitHub_Sponsors-Support_VIO_83-ea4aaa?style=for-the-badge&logo=github-sponsors" />
   </a>
   &nbsp;&nbsp;
-  <a href="https://ko-fi.com/YOUR_USERNAME">
+  <a href="https://ko-fi.com/vio83">
     <img src="https://img.shields.io/badge/Ko--fi-Buy_me_a_coffee-FF5E5B?style=for-the-badge&logo=ko-fi" />
   </a>
 </p>
@@ -291,7 +291,7 @@ MIT License — free to use, modify, and distribute.
 ---
 
 <p align="center">
-  <strong>Built with 💚 by PadronaVio</strong><br>
+  <strong>Built with 💚 by Viorica (vio83) — 🇮🇹 Italy</strong><br>
   <em>One developer. One vision. The entire AI world in one app.</em>
 </p>
 

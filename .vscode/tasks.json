@@ -1,0 +1,136 @@
+{
+  // ============================================================
+  // VIO 83 AI ORCHESTRA — Build & Run Tasks
+  // Ctrl+Shift+B per build, o usa Command Palette
+  // ============================================================
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "vite-dev",
+      "type": "npm",
+      "script": "dev",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "vite",
+        "fileLocation": "relative",
+        "pattern": {
+          "regexp": "^(.+):(\\d+):(\\d+): (error|warning) (.+)$",
+          "file": 1, "line": 2, "column": 3, "severity": 4, "message": 5
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "VITE",
+          "endsPattern": "ready in"
+        }
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "frontend"
+      }
+    },
+    {
+      "label": "vite-build",
+      "type": "npm",
+      "script": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$tsc"],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "backend-dev",
+      "type": "shell",
+      "command": "python3 -m uvicorn backend.api.server:app --reload --host 0.0.0.0 --port 4000",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": { "PYTHONPATH": "${workspaceFolder}" }
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "backend"
+      }
+    },
+    {
+      "label": "tauri-dev",
+      "type": "npm",
+      "script": "tauri dev",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "tauri"
+      }
+    },
+    {
+      "label": "tauri-build",
+      "type": "shell",
+      "command": "npm run tauri build",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "typecheck",
+      "type": "shell",
+      "command": "npx tsc --noEmit",
+      "group": "build",
+      "problemMatcher": ["$tsc"],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "ollama-start",
+      "type": "shell",
+      "command": "ollama serve",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated",
+        "group": "ai"
+      }
+    },
+    {
+      "label": "ollama-pull-models",
+      "type": "shell",
+      "command": "ollama pull qwen2.5-coder:3b && ollama pull llama3.2:3b && ollama pull gemma2:2b",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "🎵 Start Full Orchestra",
+      "dependsOn": ["ollama-start", "backend-dev", "vite-dev"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "clean",
+      "type": "shell",
+      "command": "rm -rf dist node_modules/.cache",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent"
+      }
+    }
+  ]
+}

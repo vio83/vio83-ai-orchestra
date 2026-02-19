@@ -1,0 +1,40 @@
+{
+  // Estensioni raccomandate per chi clona il progetto
+  "recommendations": [
+    // Core Development
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "rust-lang.rust-analyzer",
+    "tauri-apps.tauri-vscode",
+    
+    // React / TypeScript
+    "dsznajder.es7-react-js-snippets",
+    "ms-vscode.vscode-typescript-next",
+    "christian-kohler.path-intellisense",
+    "christian-kohler.npm-intellisense",
+    
+    // Git
+    "eamodio.gitlens",
+    
+    // UI / DX
+    "usernamehw.errorlens",
+    "naumovs.color-highlight",
+    "oderwat.indent-rainbow",
+    "formulahendry.auto-close-tag",
+    "formulahendry.auto-rename-tag",
+    "vincaslt.highlight-matching-tag",
+    "aaron-bond.better-comments",
+    "gruntfuggly.todo-tree",
+    "pkief.material-icon-theme",
+    
+    // Utility
+    "mikestead.dotenv",
+    "rangav.vscode-thunder-client",
+    "streetsidesoftware.code-spell-checker",
+    "continue.continue"
+  ],
+  "unwantedRecommendations": []
+}
