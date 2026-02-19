@@ -1,0 +1,15 @@
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+dist/
+build/
+target/
+*.dmg
+.env
+.env.local
+.env.production
+.DS_Store
+*.log
+npm-debug.log*
+src-tauri/target/

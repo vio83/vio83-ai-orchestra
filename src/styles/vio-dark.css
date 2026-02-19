@@ -1,0 +1,59 @@
+/* VIO 83 AI ORCHESTRA - Tema Vio Dark Fluorescent */
+
+:root {
+  --vio-bg-primary: #000000;
+  --vio-bg-secondary: #0a0a0a;
+  --vio-bg-tertiary: #111111;
+  --vio-bg-hover: #1a1a1a;
+  --vio-bg-active: #222222;
+  --vio-border: #333333;
+  --vio-border-focus: #00ff00;
+
+  --vio-green: #00ff00;
+  --vio-green-dim: #00cc00;
+  --vio-magenta: #ff00ff;
+  --vio-cyan: #00ffff;
+  --vio-yellow: #ffff00;
+  --vio-red: #ff3333;
+  --vio-orange: #ff8800;
+  --vio-blue: #4488ff;
+
+  --vio-text-primary: #e0e0e0;
+  --vio-text-secondary: #999999;
+  --vio-text-dim: #666666;
+
+  --vio-font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  --vio-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --vio-radius: 8px;
+  --vio-radius-lg: 12px;
+  --vio-shadow: 0 4px 24px rgba(0, 255, 0, 0.05);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--vio-bg-primary);
+  color: var(--vio-text-primary);
+  font-family: var(--vio-font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar personalizzata */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--vio-bg-primary); }
+::-webkit-scrollbar-thumb {
+  background: var(--vio-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--vio-green-dim); }
+
+/* Selezione testo */
+::selection {
+  background: rgba(0, 255, 0, 0.2);
+  color: var(--vio-green);
+}
