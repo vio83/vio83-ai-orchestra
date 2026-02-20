@@ -68,7 +68,11 @@ class RateLimitedClient:
         self._last_request = 0.0
         self._client = None
         if HTTPX_AVAILABLE:
-            self._client = httpx.Client(timeout=30.0, follow_redirects=True)
+            try:
+                self._client = httpx.Client(timeout=30.0, follow_redirects=True)
+            except (ImportError, Exception):
+                # Fallback a urllib se httpx non riesce (es. SOCKS proxy)
+                self._client = None
 
     def get_json(self, url: str, params: Optional[dict] = None) -> Optional[dict]:
         """GET request che ritorna JSON, con rate limiting."""
