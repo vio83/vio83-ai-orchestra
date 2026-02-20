@@ -13,3 +13,5 @@ target/
 *.log
 npm-debug.log*
 src-tauri/target/
+.pids/
+*.pid

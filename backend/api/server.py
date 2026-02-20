@@ -1,7 +1,7 @@
 """
 VIO 83 AI ORCHESTRA - FastAPI Server
 Server principale che espone le API per il frontend React/Tauri.
-Integra: LiteLLM orchestrator, RAG engine, provider management.
+Integra: LiteLLM orchestrator, RAG engine (opzionale), provider management.
 """
 
 import os
@@ -17,11 +17,27 @@ from backend.models.schemas import (
     ChatRequest, ChatResponse, ClassifyRequest, ClassifyResponse,
     HealthResponse, RAGAddRequest, RAGSearchRequest, ErrorResponse
 )
-from backend.orchestrator.router import classify_request, call_ai
-from backend.rag.engine import get_rag_engine, RAGSource
 from backend.config.providers import (
     CLOUD_PROVIDERS, LOCAL_PROVIDERS, get_available_cloud_providers
 )
+
+# RAG è opzionale — ChromaDB non supporta Python 3.14
+RAG_AVAILABLE = False
+try:
+    from backend.rag.engine import get_rag_engine, RAGSource
+    RAG_AVAILABLE = True
+except Exception as e:
+    print(f"⚠️  RAG Engine non disponibile: {e}")
+    print("   Il server funzionerà senza verifica fonti certificate.")
+
+# Orchestrator è opzionale — potrebbe mancare litellm
+ORCHESTRATOR_AVAILABLE = False
+try:
+    from backend.orchestrator.router import classify_request, call_ai
+    ORCHESTRATOR_AVAILABLE = True
+except Exception as e:
+    print(f"⚠️  Orchestrator LiteLLM non disponibile: {e}")
+    print("   Il frontend userà Ollama direttamente.")
 
 load_dotenv()
 
@@ -31,15 +47,22 @@ START_TIME = time.time()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Inizializzazione e shutdown del server."""
-    # Startup
     print("🎵 VIO 83 AI ORCHESTRA — Server avviato")
-    rag = get_rag_engine()
-    rag.initialize()
-    print(f"📚 RAG Engine: {rag.get_stats()['total_documents']} documenti")
+
+    if RAG_AVAILABLE:
+        try:
+            rag = get_rag_engine()
+            rag.initialize()
+            print(f"📚 RAG Engine: {rag.get_stats()['total_documents']} documenti")
+        except Exception as e:
+            print(f"⚠️  RAG init fallita: {e}")
+    else:
+        print("📚 RAG Engine: disabilitato (ChromaDB non compatibile con Python 3.14)")
+
     available = get_available_cloud_providers()
     print(f"☁️  Provider cloud disponibili: {list(available.keys()) if available else 'nessuno (configura .env)'}")
+    print(f"🤖 Ollama: attivo (frontend connette direttamente a :11434)")
     yield
-    # Shutdown
     print("🎵 VIO 83 AI ORCHESTRA — Server arrestato")
 
 
@@ -52,7 +75,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:1420", "tauri://localhost"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:1420",
+        "tauri://localhost",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -65,8 +93,7 @@ app.add_middleware(
 async def health_check():
     """Stato di salute del sistema."""
     available = get_available_cloud_providers()
-    rag = get_rag_engine()
-    
+
     providers = {}
     for key in CLOUD_PROVIDERS:
         providers[key] = {
@@ -79,12 +106,20 @@ async def health_check():
         "mode": "local",
         "name": "Ollama (Locale)",
     }
-    
+
+    rag_stats = {"total_documents": 0, "status": "disabled"}
+    if RAG_AVAILABLE:
+        try:
+            rag = get_rag_engine()
+            rag_stats = rag.get_stats()
+        except Exception:
+            pass
+
     return HealthResponse(
         status="ok",
         version="0.1.0",
         providers=providers,
-        rag_stats=rag.get_stats(),
+        rag_stats=rag_stats,
         uptime_seconds=round(time.time() - START_TIME, 1),
     )
 
@@ -95,9 +130,15 @@ async def health_check():
 async def chat(request: ChatRequest):
     """Endpoint principale chat — instrada la richiesta al provider migliore."""
     try:
+        if not ORCHESTRATOR_AVAILABLE:
+            raise HTTPException(
+                status_code=503,
+                detail="Orchestrator non disponibile. Il frontend usa Ollama direttamente."
+            )
+
         # Classifica la richiesta
         req_type = classify_request(request.message)
-        
+
         # Chiama l'orchestratore
         result = await call_ai(
             message=request.message,
@@ -110,13 +151,16 @@ async def chat(request: ChatRequest):
             system_prompt=request.system_prompt,
             enable_cross_check=request.enable_cross_check,
         )
-        
-        # Verifica RAG (se abilitato)
+
+        # Verifica RAG (se abilitato e disponibile)
         rag_verification = None
-        if request.enable_rag:
-            rag = get_rag_engine()
-            rag_verification = rag.verify_response(request.message, result.get("content", ""))
-        
+        if request.enable_rag and RAG_AVAILABLE:
+            try:
+                rag = get_rag_engine()
+                rag_verification = rag.verify_response(request.message, result.get("content", ""))
+            except Exception:
+                pass
+
         return ChatResponse(
             content=result.get("content", ""),
             provider=result.get("provider", "unknown"),
@@ -127,6 +171,8 @@ async def chat(request: ChatRequest):
             cross_check=result.get("cross_check"),
             rag_verification=rag_verification,
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -136,11 +182,18 @@ async def chat(request: ChatRequest):
 @app.post("/classify", response_model=ClassifyResponse)
 async def classify(request: ClassifyRequest):
     """Classifica il tipo di richiesta per il routing intelligente."""
+    if not ORCHESTRATOR_AVAILABLE:
+        return ClassifyResponse(
+            request_type="general",
+            suggested_provider="ollama",
+            confidence=0.5,
+        )
+
     req_type = classify_request(request.message)
-    
+
     from backend.config.providers import REQUEST_TYPE_ROUTING
     routing = REQUEST_TYPE_ROUTING.get(req_type, {})
-    
+
     return ClassifyResponse(
         request_type=req_type,
         suggested_provider=routing.get("cloud_primary", "claude"),
@@ -175,11 +228,14 @@ async def list_providers():
     }
 
 
-# === RAG ===
+# === RAG (solo se disponibile) ===
 
 @app.post("/rag/add")
 async def rag_add_source(request: RAGAddRequest):
     """Aggiungi una fonte certificata al database RAG."""
+    if not RAG_AVAILABLE:
+        raise HTTPException(status_code=503, detail="RAG Engine non disponibile (ChromaDB incompatibile con Python 3.14)")
+
     rag = get_rag_engine()
     source = RAGSource(
         title=request.title,
@@ -197,6 +253,9 @@ async def rag_add_source(request: RAGAddRequest):
 @app.post("/rag/search")
 async def rag_search(request: RAGSearchRequest):
     """Cerca nelle fonti certificate."""
+    if not RAG_AVAILABLE:
+        raise HTTPException(status_code=503, detail="RAG Engine non disponibile")
+
     rag = get_rag_engine()
     result = rag.search(request.query, n_results=request.n_results, min_score=request.min_score)
     return {
@@ -211,6 +270,9 @@ async def rag_search(request: RAGSearchRequest):
 @app.get("/rag/stats")
 async def rag_stats():
     """Statistiche database RAG."""
+    if not RAG_AVAILABLE:
+        return {"total_documents": 0, "status": "disabled", "reason": "ChromaDB non compatibile con Python 3.14"}
+
     rag = get_rag_engine()
     return rag.get_stats()
 
