@@ -63,15 +63,21 @@ from backend.rag.knowledge_distiller import (
 class RateLimitedClient:
     """Client HTTP con rate limiting e retry automatico."""
 
+    # User-Agent OBBLIGATORIO per Wikipedia e buona pratica per tutte le API
+    USER_AGENT = "VIO83-AI-Orchestra/2.0 (https://github.com/vio83/vio83-ai-orchestra; mailto:research@vio83.ai) Python/3"
+
     def __init__(self, requests_per_second: float = 10.0):
         self.min_interval = 1.0 / requests_per_second
         self._last_request = 0.0
         self._client = None
         if HTTPX_AVAILABLE:
             try:
-                self._client = httpx.Client(timeout=30.0, follow_redirects=True)
+                self._client = httpx.Client(
+                    timeout=30.0,
+                    follow_redirects=True,
+                    headers={"User-Agent": self.USER_AGENT},
+                )
             except (ImportError, Exception):
-                # Fallback a urllib se httpx non riesce (es. SOCKS proxy)
                 self._client = None
 
     def get_json(self, url: str, params: Optional[dict] = None) -> Optional[dict]:
@@ -94,7 +100,7 @@ class RateLimitedClient:
                     url = url + "?" + urllib.parse.urlencode(params)
                 req = urllib.request.Request(
                     url,
-                    headers={"User-Agent": "VIO83-AI-Orchestra/1.0 (mailto:research@vio83.ai)"}
+                    headers={"User-Agent": self.USER_AGENT}
                 )
                 with urllib.request.urlopen(req, timeout=30) as resp:
                     return json.loads(resp.read().decode("utf-8"))
@@ -215,8 +221,8 @@ class OpenAlexConnector:
             "per_page": per_page,
             "cursor": cursor,
             "select": "id,title,authorships,publication_year,language,type,"
-                      "doi,concepts,topics,primary_topic,cited_by_count,"
-                      "is_oa,abstract_inverted_index",
+                      "doi,topics,primary_topic,cited_by_count,"
+                      "is_oa",
         }
 
         filters = []
@@ -252,18 +258,6 @@ class OpenAlexConnector:
 
             # Classifica
             cat = classify_from_topics(topics)
-
-            # Ricostruisci abstract da inverted index
-            abstract = ""
-            abs_idx = work.get("abstract_inverted_index")
-            if abs_idx and isinstance(abs_idx, dict):
-                # L'abstract e' un inverted index: {word: [positions]}
-                positions = []
-                for word, idxs in abs_idx.items():
-                    for pos in idxs:
-                        positions.append((pos, word))
-                positions.sort()
-                abstract = " ".join(w for _, w in positions)
 
             # Tipo fonte
             work_type = work.get("type", "article")
@@ -321,19 +315,36 @@ class CrossrefConnector:
         query: Optional[str] = None,
         rows: int = 100,
         offset: int = 0,
-    ) -> list[Level1_Metadata]:
-        """Scarica batch di documenti da Crossref."""
+        cursor: Optional[str] = None,
+    ) -> tuple[list[Level1_Metadata], Optional[str]]:
+        """
+        Scarica batch di documenti da Crossref.
+        USA CURSOR per deep paging (offset max = 10,000 nell'API).
+        Ritorna (lista_metadati, next_cursor).
+        """
         params = {
             "mailto": self.email,
             "rows": rows,
-            "offset": offset,
         }
+        if cursor:
+            # Cursor-based paging: nessun limite di profondità
+            params["cursor"] = cursor
+        elif offset > 0:
+            # Offset-based: LIMITATO a 10,000 dall'API
+            params["offset"] = min(offset, 9999)
+        else:
+            # Prima richiesta: inizia con cursor=*
+            params["cursor"] = "*"
+
         if query:
             params["query"] = query
 
         data = self.client.get_json(f"{self.BASE_URL}/works", params=params)
         if not data or "message" not in data:
-            return []
+            return [], None
+
+        # Estrai next-cursor per deep paging
+        next_cursor = data["message"].get("next-cursor")
 
         results = []
         for item in data["message"].get("items", []):
@@ -376,7 +387,7 @@ class CrossrefConnector:
             )
             results.append(meta)
 
-        return results
+        return results, next_cursor
 
     def close(self):
         self.client.close()
@@ -512,25 +523,24 @@ class OpenSourceOrchestrator:
         return {"source": "openalex", "documents": total}
 
     def harvest_crossref(self, max_docs: int = 10000) -> dict:
-        """Scarica documenti da Crossref."""
+        """Scarica documenti da Crossref con cursor-based deep paging."""
         conn = self._get_connector("crossref")
         if not conn:
             return {"error": "Crossref connector non disponibile"}
 
         total = 0
-        offset = 0
+        cursor = "*"  # Cursor-based: nessun limite di profondità!
         batch_size = 100
 
-        print(f"[OpenSources] Avvio harvest Crossref (target: {max_docs:,})")
+        print(f"[OpenSources] Avvio harvest Crossref (target: {max_docs:,}) — cursor-based")
 
-        while total < max_docs:
-            batch = conn.fetch_works(rows=batch_size, offset=offset)
+        while total < max_docs and cursor:
+            batch, cursor = conn.fetch_works(rows=batch_size, cursor=cursor)
             if not batch:
                 break
 
             inserted = self.db.distill_batch_metadata(batch)
             total += inserted
-            offset += batch_size
 
             if total % 1000 == 0:
                 print(f"[OpenSources] Crossref: {total:,} / {max_docs:,} documenti")

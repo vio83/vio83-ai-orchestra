@@ -206,21 +206,24 @@ class ProductionHarvester:
         return prog
 
     # ----------------------------------------------------------
-    # CROSSREF HARVEST (offset-based)
+    # CROSSREF HARVEST (cursor-based deep paging — NESSUN LIMITE)
     # ----------------------------------------------------------
 
     def harvest_crossref(self, target: int = 50_000, resume: bool = True):
-        """Scarica metadati da Crossref con paginazione offset."""
+        """
+        Scarica metadati da Crossref con cursor-based deep paging.
+        NESSUN LIMITE di profondità (offset era limitato a 10,000).
+        """
         global SHUTDOWN_REQUESTED
         source = "crossref"
 
         prog = self.state.load_progress(source) if resume else None
         if prog and prog.status in ("running", "paused"):
-            logger.info(f"▶ RESUME Crossref da {prog.total_fetched:,} docs, offset={prog.offset}")
+            logger.info(f"▶ RESUME Crossref da {prog.total_fetched:,} docs, cursor={prog.cursor[:30] if prog.cursor else 'N/A'}...")
         else:
             prog = HarvestProgress(
                 source=source,
-                offset=0,
+                cursor="*",  # Cursor-based: inizia con *
                 target=target,
                 started_at=time.time(),
                 status="running",
@@ -235,10 +238,10 @@ class ProductionHarvester:
         try:
             while prog.total_fetched < target and not SHUTDOWN_REQUESTED:
                 try:
-                    batch = self._retry_with_backoff(
+                    batch, next_cursor = self._retry_with_backoff(
                         conn.fetch_works,
                         rows=100,
-                        offset=prog.offset,
+                        cursor=prog.cursor or "*",
                     )
                 except Exception as e:
                     prog.total_errors += 1
@@ -253,7 +256,7 @@ class ProductionHarvester:
                 inserted = self.db.distill_batch_metadata(batch)
                 prog.total_fetched += len(batch)
                 prog.total_inserted += inserted
-                prog.offset += 100
+                prog.cursor = next_cursor or ""
                 prog.last_batch_at = time.time()
                 prog.last_batch_size = len(batch)
                 batch_count += 1
@@ -264,9 +267,9 @@ class ProductionHarvester:
                 if prog.total_fetched % 1000 < 100:
                     logger.info(prog.summary())
 
-                # Crossref ha limite offset di 10000 senza cursor
-                if prog.offset >= 9900:
-                    logger.info("Crossref: limite offset raggiunto (10000)")
+                # Se cursor esaurito, fine dati
+                if not next_cursor:
+                    logger.info("Crossref: cursor esaurito — fine catalogo")
                     break
 
         finally:
