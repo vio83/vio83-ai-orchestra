@@ -250,22 +250,33 @@ export async function sendToOrchestra(
 
   const apiMessages = messages.map(m => ({ role: m.role, content: m.content }));
 
-  // Routing intelligente
-  let provider = config.primaryProvider;
-  let requestType: RequestType = 'conversation';
-  if (config.autoRouting && config.mode === 'cloud') {
-    requestType = classifyRequest(lastMessage.content);
-    provider = routeToProvider(requestType, config.mode);
-  } else if (config.autoRouting && config.mode === 'local') {
-    requestType = classifyRequest(lastMessage.content);
+  // Controlla se ci sono API keys configurate
+  const hasAnyApiKey = Object.values(config.apiKeys).some(k => k && k.trim().length > 0);
+
+  // Se siamo in cloud mode ma non ci sono API keys, forza Ollama
+  const effectiveMode: AIMode = (config.mode === 'cloud' && !hasAnyApiKey) ? 'local' : config.mode;
+  const effectiveProvider: AIProvider = effectiveMode === 'local' ? 'ollama' : config.primaryProvider;
+
+  if (effectiveMode !== config.mode) {
+    console.log(`[Orchestra] Nessuna API key trovata — fallback automatico a Ollama locale`);
   }
-  console.log(`[Orchestra] Tipo: ${requestType} | Mode: ${config.mode} | Provider: ${provider}`);
+
+  // Routing intelligente
+  let provider = effectiveProvider;
+  let requestType: RequestType = 'conversation';
+  if (config.autoRouting) {
+    requestType = classifyRequest(lastMessage.content);
+    if (effectiveMode === 'cloud') {
+      provider = routeToProvider(requestType, effectiveMode);
+    }
+  }
+  console.log(`[Orchestra] Tipo: ${requestType} | Mode: ${effectiveMode} | Provider: ${provider}`);
 
   // Tenta provider principale
   try {
     let response: AIResponse;
 
-    if (config.mode === 'local' || provider === 'ollama') {
+    if (effectiveMode === 'local' || provider === 'ollama') {
       response = await callOllama(
         apiMessages,
         config.ollamaModel || 'qwen2.5-coder:3b',
@@ -277,7 +288,7 @@ export async function sendToOrchestra(
     }
 
     // Cross-check opzionale
-    if (config.crossCheckEnabled && config.mode === 'cloud' && config.fallbackProviders.length > 0) {
+    if (config.crossCheckEnabled && effectiveMode === 'cloud' && config.fallbackProviders.length > 0) {
       try {
         const checkProvider = config.fallbackProviders[0];
         const checkResponse = await callCloud(
@@ -301,18 +312,34 @@ export async function sendToOrchestra(
 
     return response;
   } catch (error) {
-    // Fallback
+    // Fallback — prova sempre Ollama come ultimo tentativo
     console.warn(`[Orchestra] ${provider} fallito, tentativo fallback...`);
+
+    // Prima prova i fallback configurati
     for (const fallback of config.fallbackProviders) {
       try {
         if (fallback === 'ollama') {
           return await callOllama(apiMessages, config.ollamaModel, config.ollamaHost, onToken);
         }
-        return await callCloud(apiMessages, fallback, config.apiKeys, onToken);
+        // Solo se abbiamo API keys per questo provider
+        if (hasAnyApiKey) {
+          return await callCloud(apiMessages, fallback, config.apiKeys, onToken);
+        }
       } catch (e) {
         console.warn(`[Orchestra] Fallback ${fallback} fallito:`, e);
       }
     }
+
+    // Ultimo tentativo: Ollama sempre (se non già provato)
+    if (provider !== 'ollama') {
+      try {
+        console.log('[Orchestra] Ultimo tentativo: Ollama locale');
+        return await callOllama(apiMessages, config.ollamaModel || 'qwen2.5-coder:3b', config.ollamaHost, onToken);
+      } catch (e) {
+        console.warn('[Orchestra] Anche Ollama fallito:', e);
+      }
+    }
+
     throw new Error(`Tutti i provider hanno fallito. Errore originale: ${error}`);
   }
 }
