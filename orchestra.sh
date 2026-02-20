@@ -166,13 +166,27 @@ cmd_check() {
         fi
     fi
     
-    # LiteLLM
-    if python3 -c "import litellm" 2>/dev/null; then
-        log_ok "LiteLLM $(python3 -c 'import litellm; print(litellm.__version__)' 2>/dev/null)"
+    # Dipendenze Python backend
+    local missing_deps=false
+    if python3 -c "import fastapi" 2>/dev/null; then
+        log_ok "FastAPI $(python3 -c 'import fastapi; print(fastapi.__version__)' 2>/dev/null)"
     else
-        log_warn "LiteLLM non trovato — installo ora..."
-        pip3 install litellm fastapi uvicorn --break-system-packages -q
-        log_ok "LiteLLM installato"
+        missing_deps=true
+    fi
+    if python3 -c "import httpx" 2>/dev/null; then
+        log_ok "httpx $(python3 -c 'import httpx; print(httpx.__version__)' 2>/dev/null)"
+    else
+        missing_deps=true
+    fi
+    if python3 -c "import uvicorn" 2>/dev/null; then
+        log_ok "uvicorn $(python3 -c 'import uvicorn; print(uvicorn.__version__)' 2>/dev/null)"
+    else
+        missing_deps=true
+    fi
+    if $missing_deps; then
+        log_warn "Dipendenze Python mancanti — installo ora..."
+        pip3 install fastapi uvicorn httpx python-dotenv pydantic --break-system-packages -q
+        log_ok "Dipendenze Python installate"
     fi
     
     # Modelli Ollama
@@ -256,11 +270,20 @@ cmd_start() {
         log_warn "Apri VS Code manualmente sulla cartella: $PROJECT_DIR"
     fi
     
-    # STEP 5: Apri browser
-    log_step "5" "Apro l'app nel browser"
+    # STEP 5: Apri browser — SOLO Orion (mai Safari)
+    log_step "5" "Apro l'app in Orion Browser"
     sleep 1
-    open "http://localhost:$FRONTEND_PORT"
-    log_ok "Browser aperto su http://localhost:$FRONTEND_PORT"
+    if [ -d "/Applications/Orion.app" ]; then
+        open -a "Orion" "http://localhost:$FRONTEND_PORT"
+        log_ok "Orion aperto su http://localhost:$FRONTEND_PORT"
+    elif [ -d "$HOME/Applications/Orion.app" ]; then
+        open -a "Orion" "http://localhost:$FRONTEND_PORT"
+        log_ok "Orion aperto su http://localhost:$FRONTEND_PORT"
+    else
+        log_warn "Orion Browser non trovato in /Applications/"
+        log_info "Apri manualmente: http://localhost:$FRONTEND_PORT"
+        log_info "Per installare Orion: https://browser.kagi.com/"
+    fi
     
     # Riepilogo finale
     echo ""

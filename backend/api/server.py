@@ -246,13 +246,16 @@ async def chat_stream(request: ChatRequest):
     if request.system_prompt:
         messages.insert(0, {"role": "system", "content": request.system_prompt})
 
-    # Inietta system prompt certificato VIO 83 (se non già presente)
-    from backend.orchestrator.direct_router import VIO83_SYSTEM_PROMPT
+    # Inietta system prompt SPECIALIZZATO per tipo di richiesta
+    from backend.orchestrator.direct_router import classify_request as _classify
+    from backend.orchestrator.system_prompt import build_system_prompt
     has_system = any(m.get("role") == "system" for m in messages)
     if not has_system:
-        messages.insert(0, {"role": "system", "content": VIO83_SYSTEM_PROMPT})
+        req_type = _classify(request.message)
+        system_prompt = build_system_prompt(req_type)
+        messages.insert(0, {"role": "system", "content": system_prompt})
 
-    model = request.model or "qwen2.5-coder:3b"
+    model = request.model or "llama3.2:3b"
 
     async def event_generator():
         full_content = ""

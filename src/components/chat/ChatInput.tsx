@@ -5,9 +5,10 @@ import { useAppStore } from '../../stores/appStore';
 import type { AIProvider } from '../../types';
 
 // Modelli Ollama disponibili localmente (su MacBook Air M1 8GB)
+// Ordinati per potenza: Llama 3.2 3B è il più potente per uso generale (MMLU 63.4)
 const OLLAMA_MODELS = [
-  { id: 'qwen2.5-coder:3b', name: 'Qwen Coder 3B', desc: 'Codice — veloce', ram: '~2GB' },
-  { id: 'llama3.2:3b', name: 'Llama 3.2 3B', desc: 'Generale — bilanciato', ram: '~2GB' },
+  { id: 'llama3.2:3b', name: 'Llama 3.2 3B', desc: 'Più potente — generale', ram: '~2GB' },
+  { id: 'qwen2.5-coder:3b', name: 'Qwen Coder 3B', desc: 'Migliore per codice', ram: '~2GB' },
   { id: 'gemma2:2b', name: 'Gemma 2 2B', desc: 'Leggero — rapido', ram: '~1.5GB' },
 ];
 
@@ -29,7 +30,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { settings, setMode, setProvider, setOllamaModel, isStreaming } = useAppStore();
   const { mode, primaryProvider } = settings.orchestrator;
-  const currentOllamaModel = settings.ollamaModel || 'qwen2.5-coder:3b';
+  const currentOllamaModel = settings.ollamaModel || 'llama3.2:3b';
 
   // Auto-resize textarea
   useEffect(() => {

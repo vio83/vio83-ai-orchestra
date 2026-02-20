@@ -44,7 +44,7 @@ const defaultSettings: AppSettings = {
   },
   apiKeys: [],
   ollamaHost: 'http://localhost:11434',
-  ollamaModel: 'qwen2.5-coder:3b',
+  ollamaModel: 'llama3.2:3b',
   fontSize: 14,
 };
 
