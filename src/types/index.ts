@@ -21,6 +21,8 @@ export interface Message {
   provider?: AIProvider;
   model?: string;
   timestamp: number;
+  latencyMs?: number;    // Response latency in ms
+  tokensUsed?: number;   // Tokens consumed
   qualityScore?: number; // Cross-check quality badge
   verified?: boolean;    // RAG verification status
 }

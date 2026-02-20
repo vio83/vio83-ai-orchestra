@@ -1,0 +1,16 @@
+# VIO 83 AI ORCHESTRA - Dipendenze Python
+# Installare con: pip install -r requirements.txt
+
+# === Core Server ===
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+
+# === HTTP Client (per chiamate Ollama/API) ===
+httpx>=0.27.0
+
+# === Opzionali (commentare se non necessario) ===
+# litellm>=1.50.0        # Multi-provider (richiede Python <3.14)
+# chromadb>=0.5.0        # RAG Engine (richiede Python <3.14)
+# aiohttp>=3.10.0        # HTTP alternativo

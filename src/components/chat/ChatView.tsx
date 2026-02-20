@@ -87,6 +87,8 @@ export default function ChatView() {
         provider: response.provider,
         model: response.model,
         timestamp: Date.now(),
+        latencyMs: response.latencyMs,
+        tokensUsed: response.tokensUsed,
         verified: response.crossCheckResult?.concordance,
         qualityScore: response.crossCheckResult ? (response.crossCheckResult.concordance ? 1 : 0.5) : undefined,
       };

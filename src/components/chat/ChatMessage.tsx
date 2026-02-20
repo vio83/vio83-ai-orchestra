@@ -141,17 +141,32 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           </ReactMarkdown>
         </div>
 
-        {/* Footer: timestamp */}
+        {/* Footer: timestamp + model info */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
+          gap: '8px',
           marginTop: '8px',
           fontSize: '11px',
           color: 'var(--vio-text-dim)',
         }}>
           <Clock size={11} />
           {new Date(message.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+
+          {message.model && (
+            <>
+              <span style={{ color: 'var(--vio-border)' }}>•</span>
+              <span>{message.model}</span>
+            </>
+          )}
+
+          {message.latencyMs && message.latencyMs > 0 && (
+            <>
+              <span style={{ color: 'var(--vio-border)' }}>•</span>
+              <Zap size={11} />
+              <span>{message.latencyMs < 1000 ? `${message.latencyMs}ms` : `${(message.latencyMs / 1000).toFixed(1)}s`}</span>
+            </>
+          )}
         </div>
       </div>
     </div>
