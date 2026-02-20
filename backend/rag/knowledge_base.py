@@ -59,45 +59,194 @@ except ImportError:
 # ============================================================
 
 DOMAIN_KEYWORDS = {
-    "matematica": ["algebra", "calcolo", "teorema", "dimostrazione", "integrale", "derivata",
-                   "equazione", "matrice", "vettore", "topologia", "gruppo", "anello", "campo",
-                   "funzione", "limite", "convergenza", "serie", "probabilità", "statistica"],
-    "fisica": ["forza", "energia", "quantistica", "relatività", "onda", "particella", "campo",
-               "termodinamica", "entropia", "momento", "impulso", "spin", "bosone", "fermione",
-               "gravitazione", "elettromagnetismo", "meccanica", "ottica", "acustica"],
-    "chimica": ["molecola", "atomo", "reazione", "legame", "orbitale", "catalisi", "pH",
-                "ossidazione", "riduzione", "polimero", "enzima", "solvente", "cristallo",
-                "spettroscopia", "cromatografia", "stechiometria"],
-    "biologia": ["cellula", "DNA", "RNA", "proteina", "gene", "mutazione", "evoluzione",
-                 "specie", "ecosistema", "fotosintesi", "mitosi", "meiosi", "genoma",
-                 "metabolismo", "enzima", "organismo", "tessuto", "organo"],
-    "medicina": ["diagnosi", "terapia", "farmaco", "sintomo", "patologia", "chirurgia",
-                 "anamnesi", "prognosi", "eziologia", "epidemiologia", "dosaggio",
-                 "controindicazione", "effetto collaterale", "screening", "biopsia"],
-    "informatica": ["algoritmo", "complessità", "database", "rete", "protocollo", "compilatore",
-                    "thread", "stack", "heap", "hash", "cache", "API", "framework", "container",
-                    "crittografia", "machine learning", "neurale", "deep learning"],
-    "diritto": ["articolo", "comma", "decreto", "legge", "codice", "giurisprudenza", "sentenza",
-                "tribunale", "reato", "sanzione", "contratto", "responsabilità", "procedura",
-                "costituzione", "diritto", "norma", "regolamento"],
-    "economia": ["PIL", "inflazione", "mercato", "domanda", "offerta", "capitale", "interesse",
-                 "investimento", "bilancio", "fiscale", "monetaria", "microeconomia",
-                 "macroeconomia", "econometria", "finanza", "rendimento"],
-    "storia": ["secolo", "epoca", "dinastia", "impero", "guerra", "rivoluzione", "trattato",
-               "monarchia", "repubblica", "colonia", "feudalesimo", "rinascimento",
-               "illuminismo", "industrializzazione", "civilizzazione"],
-    "filosofia": ["ontologia", "epistemologia", "etica", "metafisica", "fenomenologia",
-                  "dialettica", "ermeneutica", "esistenzialismo", "pragmatismo", "logica",
-                  "sillogismo", "a priori", "a posteriori", "trascendentale"],
-    "linguistica": ["fonema", "morfema", "sintassi", "semantica", "pragmatica", "lessema",
-                    "fonetica", "fonologia", "morfologia", "coniugazione", "declinazione",
-                    "etimologia", "sociolinguistica", "psicolinguistica"],
-    "astronomia": ["stella", "pianeta", "galassia", "nebulosa", "supernova", "buco nero",
-                   "pulsar", "quasar", "redshift", "magnitudine", "parsec", "anno luce",
-                   "cosmologia", "esopianeta", "asteroide", "cometa"],
-    "psicologia": ["cognizione", "comportamento", "percezione", "memoria", "apprendimento",
-                   "motivazione", "emozione", "personalità", "disturbo", "terapia",
-                   "inconscio", "condizionamento", "rinforzo", "attaccamento"],
+    # === SCIENZE NATURALI E FORMALI ===
+    "matematica": [
+        "algebra", "calcolo", "teorema", "dimostrazione", "integrale", "derivata",
+        "equazione", "matrice", "vettore", "topologia", "gruppo", "anello",
+        "funzione", "limite", "convergenza", "serie", "probabilita", "statistica",
+        "geometria", "combinatoria", "ottimizzazione", "assioma",
+    ],
+    "fisica": [
+        "forza", "energia", "quantistica", "relativita", "onda", "particella",
+        "termodinamica", "entropia", "momento", "impulso", "spin", "bosone",
+        "fermione", "gravitazione", "elettromagnetismo", "meccanica", "ottica",
+        "acustica", "fotone", "neutrino", "plasma", "superconduttore",
+    ],
+    "chimica": [
+        "molecola", "atomo", "reazione", "legame", "orbitale", "catalisi", "pH",
+        "ossidazione", "riduzione", "polimero", "solvente", "cristallo",
+        "spettroscopia", "cromatografia", "stechiometria", "mole", "titolazione",
+    ],
+    "biologia": [
+        "cellula", "DNA", "RNA", "proteina", "gene", "mutazione", "evoluzione",
+        "specie", "ecosistema", "fotosintesi", "mitosi", "meiosi", "genoma",
+        "metabolismo", "organismo", "tessuto", "organo", "epigenetica",
+    ],
+    "scienze_terra": [
+        "geologia", "minerale", "roccia", "fossile", "terremoto", "vulcano",
+        "tettonica", "stratigrafia", "sedimentazione", "erosione", "meteorologia",
+        "clima", "oceano", "idrosfera", "atmosfera", "paleontologia", "sismologia",
+    ],
+    "astronomia": [
+        "stella", "pianeta", "galassia", "nebulosa", "supernova", "buco nero",
+        "pulsar", "quasar", "redshift", "magnitudine", "parsec", "anno luce",
+        "cosmologia", "esopianeta", "asteroide", "cometa", "costellazione",
+    ],
+    # === SCIENZE MEDICHE E DELLA SALUTE ===
+    "medicina": [
+        "diagnosi", "terapia", "farmaco", "sintomo", "patologia", "chirurgia",
+        "anamnesi", "prognosi", "eziologia", "epidemiologia", "dosaggio",
+        "controindicazione", "screening", "biopsia", "cardiologia", "oncologia",
+    ],
+    "farmacia_farmacologia": [
+        "farmacocinetica", "farmacodinamica", "farmacognosia", "tossicologia",
+        "galenica", "formulazione", "biodisponibilita", "emivita", "metabolita",
+        "posologia", "farmacovigilanza", "eccipiente", "principio attivo",
+    ],
+    "psicologia": [
+        "cognizione", "comportamento", "percezione", "memoria", "apprendimento",
+        "motivazione", "emozione", "personalita", "disturbo", "psicoterapia",
+        "inconscio", "condizionamento", "rinforzo", "attaccamento", "ansia",
+    ],
+    "scienze_infermieristiche": [
+        "infermieristica", "assistenza", "nursing", "fisioterapia", "riabilitazione",
+        "logopedia", "ostetricia", "triage", "cartella clinica", "wound care",
+    ],
+    "veterinaria": [
+        "veterinario", "zootecnia", "animale domestico", "bestiame", "equino",
+        "vaccinazione animale", "parassita animale", "allevamento", "acquacoltura",
+    ],
+    # === SCIENZE UMANE E SOCIALI ===
+    "storia": [
+        "secolo", "epoca", "dinastia", "impero", "guerra", "rivoluzione", "trattato",
+        "monarchia", "repubblica", "colonia", "feudalesimo", "rinascimento",
+        "illuminismo", "industrializzazione", "civilizzazione", "archeologia",
+    ],
+    "filosofia": [
+        "ontologia", "epistemologia", "etica", "metafisica", "fenomenologia",
+        "dialettica", "ermeneutica", "esistenzialismo", "pragmatismo", "logica",
+        "sillogismo", "a priori", "a posteriori", "trascendentale", "estetica",
+    ],
+    "linguistica": [
+        "fonema", "morfema", "sintassi", "semantica", "pragmatica", "lessema",
+        "fonetica", "fonologia", "morfologia", "coniugazione", "declinazione",
+        "etimologia", "sociolinguistica", "psicolinguistica", "filologia",
+    ],
+    "sociologia_antropologia": [
+        "societa", "comunita", "stratificazione", "disuguaglianza", "classe sociale",
+        "etnia", "cultura", "norma sociale", "devianza", "socializzazione",
+        "etnografia", "antropologia", "parentela", "rituale", "identita",
+    ],
+    "scienze_politiche": [
+        "politica", "stato", "governo", "democrazia", "partito", "elezione",
+        "parlamento", "geopolitica", "relazioni internazionali", "diplomazia",
+        "sovranita", "governance", "ideologia", "populismo", "costituzione politica",
+    ],
+    "diritto": [
+        "articolo", "comma", "decreto", "legge", "codice", "giurisprudenza",
+        "sentenza", "tribunale", "reato", "sanzione", "contratto", "procedura",
+        "costituzione", "norma", "regolamento", "ricorso", "cassazione",
+    ],
+    "pedagogia": [
+        "didattica", "apprendimento", "insegnamento", "curricolo", "valutazione",
+        "pedagogia", "educazione", "formazione", "competenza", "istruzione",
+        "e-learning", "inclusione scolastica", "BES", "DSA", "orientamento",
+    ],
+    "religioni_teologia": [
+        "teologia", "sacro", "divino", "preghiera", "liturgia", "scrittura sacra",
+        "bibbia", "corano", "veda", "buddha", "dio", "profeta", "salvezza",
+        "sacramento", "peccato", "redenzione", "misticismo",
+    ],
+    # === SCIENZE ECONOMICHE E GESTIONALI ===
+    "economia": [
+        "PIL", "inflazione", "mercato", "domanda", "offerta", "capitale", "interesse",
+        "investimento", "bilancio", "fiscale", "monetaria", "microeconomia",
+        "macroeconomia", "econometria", "rendimento", "debito pubblico",
+    ],
+    "management_business": [
+        "strategia", "marketing", "leadership", "startup", "business model",
+        "supply chain", "KPI", "ROI", "brand", "customer", "stakeholder",
+        "innovazione", "project management", "agile", "lean",
+    ],
+    "contabilita_finanza": [
+        "bilancio", "contabilita", "revisione", "audit", "ragioneria",
+        "conto economico", "stato patrimoniale", "ammortamento", "IVA",
+        "derivati", "obbligazione", "azione", "portafoglio", "rating",
+    ],
+    # === TECNOLOGIA E INGEGNERIA ===
+    "informatica": [
+        "algoritmo", "complessita", "database", "protocollo", "compilatore",
+        "thread", "stack", "hash", "cache", "API", "framework", "container",
+        "crittografia", "machine learning", "neurale", "deep learning",
+        "cloud", "DevOps", "microservizi", "blockchain",
+    ],
+    "ingegneria": [
+        "struttura", "cemento", "acciaio", "resistenza", "carico", "trazione",
+        "compressione", "turbina", "motore", "circuito", "tensione", "corrente",
+        "progettazione", "collaudo", "normativa tecnica", "CAD",
+    ],
+    "telecomunicazioni": [
+        "antenna", "fibra ottica", "5G", "6G", "banda", "frequenza", "modulazione",
+        "segnale", "protocollo di rete", "IoT", "wireless", "satellite",
+    ],
+    "biotecnologia_nanotecnologia": [
+        "CRISPR", "editing genomico", "biofarmaco", "anticorpo monoclonale",
+        "nanomateriale", "nanoparticella", "nanomedicina", "bioreattore",
+        "fermentazione", "ingegneria genetica", "OGM", "terapia genica",
+    ],
+    # === ARTI, DESIGN E COMUNICAZIONE ===
+    "arti_visive_performative": [
+        "pittura", "scultura", "installazione", "performance", "mostra",
+        "galleria", "museo d'arte", "avanguardia", "impressionismo",
+        "espressionismo", "cubismo", "astrattismo", "fotografia artistica",
+    ],
+    "musica": [
+        "melodia", "armonia", "ritmo", "contrappunto", "partitura", "orchestra",
+        "composizione", "sinfonia", "sonata", "concerto", "tonalita",
+        "dodecafonia", "improvvisazione", "strumentazione",
+    ],
+    "cinema_media": [
+        "regia", "sceneggiatura", "montaggio", "fotografia cinematografica",
+        "documentario", "giornalismo", "comunicazione di massa", "semiotica",
+        "social media", "content creation", "broadcasting",
+    ],
+    "design_moda_architettura": [
+        "design", "progettazione", "moda", "tessuto", "sartoria", "passerella",
+        "architettura", "urbanistica", "piano regolatore", "restauro",
+        "arredamento", "interior design", "tipografia", "grafica",
+    ],
+    # === SCIENZE APPLICATE E PROFESSIONALI ===
+    "agraria_alimentare": [
+        "agronomia", "coltivazione", "irrigazione", "fertilizzante", "raccolto",
+        "viticoltura", "enologia", "allevamento", "nutrizione", "HACCP",
+        "sicurezza alimentare", "biologico", "OGM alimentare", "food tech",
+    ],
+    "scienze_ambientali": [
+        "cambiamento climatico", "CO2", "gas serra", "riscaldamento globale",
+        "energia rinnovabile", "solare", "eolico", "riciclo", "biodiversita",
+        "sostenibilita", "ESG", "inquinamento", "bonifica",
+    ],
+    "scienze_motorie_sport": [
+        "allenamento", "prestazione", "biomeccanica", "fisiologia sportiva",
+        "doping", "atletica", "fitness", "sport", "coaching", "VO2max",
+    ],
+    "turismo_ospitalita": [
+        "turismo", "hotel", "ospitalita", "tour operator", "destinazione",
+        "accoglienza", "ristorazione", "evento", "convention",
+    ],
+    "criminologia_forensi": [
+        "crimine", "reato penale", "profiling", "scena del crimine", "autopsia",
+        "balistica", "DNA forense", "digital forensics", "vittima", "detenuto",
+    ],
+    # === INTERDISCIPLINARE E EMERGENTE ===
+    "biblioteconomia_archivistica": [
+        "biblioteca", "catalogo", "classificazione", "archivio", "manoscritto",
+        "digitalizzazione", "conservazione", "museo", "collezione", "repertorio",
+    ],
+    "studi_genere_interculturali": [
+        "genere", "femminismo", "patriarcato", "LGBTQ", "queer", "postcoloniale",
+        "diaspora", "migrazione", "interculturale", "intersezionalita",
+    ],
 }
 
 
