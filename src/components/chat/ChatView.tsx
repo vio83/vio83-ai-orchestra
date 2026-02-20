@@ -1,6 +1,6 @@
-// VIO 83 AI ORCHESTRA - Vista Chat Principale
-import { useRef, useEffect } from 'react';
-import { MessageSquarePlus, Music } from 'lucide-react';
+// VIO 83 AI ORCHESTRA - Vista Chat Principale con Streaming
+import { useRef, useEffect, useState } from 'react';
+import { Music } from 'lucide-react';
 import { useAppStore } from '../../stores/appStore';
 import { sendToOrchestra } from '../../services/ai/orchestrator';
 import ChatMessage from './ChatMessage';
@@ -19,17 +19,17 @@ export default function ChatView() {
   } = useAppStore();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [streamingContent, setStreamingContent] = useState('');
+  const [streamingProvider, setStreamingProvider] = useState('');
   const activeConversation = conversations.find(c => c.id === activeConversationId);
 
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConversation?.messages]);
+  }, [activeConversation?.messages, streamingContent]);
 
   const handleSend = async (content: string) => {
     let convId = activeConversationId;
-
-    // Crea nuova conversazione se necessario
     if (!convId) {
       convId = createConversation();
     }
@@ -43,9 +43,10 @@ export default function ChatView() {
     };
     addMessage(convId, userMessage);
     setStreaming(true);
+    setStreamingContent('');
+    setStreamingProvider(settings.orchestrator.mode === 'local' ? 'ollama' : settings.orchestrator.primaryProvider);
 
     try {
-      // Prepara API keys
       const apiKeys: Record<string, string> = {};
       settings.apiKeys.forEach(k => {
         const keyName = {
@@ -59,11 +60,14 @@ export default function ChatView() {
         if (keyName) apiKeys[keyName] = k.key;
       });
 
-      // Prendi tutti i messaggi della conversazione
       const conv = useAppStore.getState().conversations.find(c => c.id === convId);
       const allMessages = conv?.messages || [userMessage];
 
-      // Invia all'orchestra
+      // Streaming callback — aggiorna il testo in tempo reale
+      const onToken = (token: string) => {
+        setStreamingContent(prev => prev + token);
+      };
+
       const response = await sendToOrchestra(allMessages, {
         mode: settings.orchestrator.mode,
         primaryProvider: settings.orchestrator.primaryProvider,
@@ -72,9 +76,9 @@ export default function ChatView() {
         crossCheckEnabled: settings.orchestrator.crossCheckEnabled,
         apiKeys,
         ollamaHost: settings.ollamaHost,
-      });
+      }, onToken);
 
-      // Aggiungi risposta AI
+      // Aggiungi risposta finale
       const aiMessage: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',
@@ -88,73 +92,46 @@ export default function ChatView() {
       addMessage(convId, aiMessage);
 
     } catch (error: any) {
-      // Messaggio di errore
       const errorMessage: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',
         content: `**Errore:** ${error.message || 'Impossibile contattare il provider AI.'}\n\n${
           settings.orchestrator.mode === 'local'
-            ? 'Verifica che Ollama sia in esecuzione (`ollama serve` nel terminale).'
-            : 'Verifica le tue API keys nelle impostazioni.'
+            ? '**Soluzioni:**\n1. Verifica che Ollama sia attivo: `ollama serve`\n2. Verifica il modello: `ollama list`\n3. Scarica un modello: `ollama pull qwen2.5-coder:3b`'
+            : '**Soluzioni:**\n1. Verifica le API keys nelle Impostazioni\n2. Controlla la connessione internet\n3. Prova a cambiare provider'
         }`,
         timestamp: Date.now(),
       };
       addMessage(convId, errorMessage);
     } finally {
       setStreaming(false);
+      setStreamingContent('');
     }
   };
 
-  // Schermata di benvenuto quando non c'è conversazione
+  // === Welcome Screen ===
   if (!activeConversation || activeConversation.messages.length === 0) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        backgroundColor: 'var(--vio-bg-primary)',
-      }}>
-        {/* Welcome screen */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '40px',
-          gap: '20px',
-        }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: 'var(--vio-bg-primary)' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', gap: '20px' }}>
           <div style={{
-            width: '80px',
-            height: '80px',
-            borderRadius: '50%',
+            width: '80px', height: '80px', borderRadius: '50%',
             background: 'linear-gradient(135deg, rgba(0,255,0,0.2), rgba(255,0,255,0.2))',
             border: '2px solid var(--vio-green)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <Music size={36} color="var(--vio-green)" />
           </div>
 
           <h1 style={{
-            fontSize: '28px',
-            fontWeight: 700,
+            fontSize: '28px', fontWeight: 700,
             background: 'linear-gradient(90deg, var(--vio-green), var(--vio-cyan))',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            textAlign: 'center',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', textAlign: 'center',
           }}>
             VIO 83 AI Orchestra
           </h1>
 
-          <p style={{
-            color: 'var(--vio-text-secondary)',
-            fontSize: '14px',
-            textAlign: 'center',
-            maxWidth: '500px',
-            lineHeight: '1.6',
-          }}>
+          <p style={{ color: 'var(--vio-text-secondary)', fontSize: '14px', textAlign: 'center', maxWidth: '500px', lineHeight: '1.6' }}>
             L'orchestra AI che unisce i modelli più potenti del mondo.
             {settings.orchestrator.mode === 'cloud'
               ? ' Modalità Cloud attiva — connesso ai provider AI.'
@@ -162,70 +139,52 @@ export default function ChatView() {
             }
           </p>
 
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            marginTop: '16px',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-          }}>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
             {['Scrivi codice Python', 'Analizza questi dati', 'Spiega la meccanica quantistica', 'Crea una REST API'].map((suggestion, i) => (
-              <button
-                key={i}
-                onClick={() => handleSend(suggestion)}
+              <button key={i} onClick={() => handleSend(suggestion)}
                 style={{
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  border: '1px solid var(--vio-border)',
-                  backgroundColor: 'transparent',
-                  color: 'var(--vio-text-secondary)',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
+                  padding: '8px 16px', borderRadius: '20px',
+                  border: '1px solid var(--vio-border)', backgroundColor: 'transparent',
+                  color: 'var(--vio-text-secondary)', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s',
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--vio-green)';
-                  e.currentTarget.style.color = 'var(--vio-green)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--vio-border)';
-                  e.currentTarget.style.color = 'var(--vio-text-secondary)';
-                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--vio-green)'; e.currentTarget.style.color = 'var(--vio-green)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--vio-border)'; e.currentTarget.style.color = 'var(--vio-text-secondary)'; }}
               >
                 {suggestion}
               </button>
             ))}
           </div>
         </div>
-
         <ChatInput onSend={handleSend} />
       </div>
     );
   }
 
-  // Vista conversazione con messaggi
+  // === Chat con messaggi ===
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      backgroundColor: 'var(--vio-bg-primary)',
-    }}>
-      {/* Messages area */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        paddingBottom: '20px',
-      }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: 'var(--vio-bg-primary)' }}>
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px' }}>
         {activeConversation.messages.map(msg => (
           <ChatMessage key={msg.id} message={msg} />
         ))}
 
-        {isStreaming && (
+        {/* Streaming in tempo reale */}
+        {isStreaming && streamingContent && (
+          <ChatMessage
+            message={{
+              id: 'streaming',
+              role: 'assistant',
+              content: streamingContent,
+              provider: streamingProvider as any,
+              timestamp: Date.now(),
+            }}
+          />
+        )}
+
+        {/* Indicatore "sta scrivendo" */}
+        {isStreaming && !streamingContent && (
           <div style={{
-            display: 'flex',
-            gap: '12px',
-            padding: '16px 20px',
+            display: 'flex', gap: '12px', padding: '16px 20px',
             backgroundColor: 'var(--vio-bg-secondary)',
           }}>
             <div style={{
@@ -237,14 +196,13 @@ export default function ChatView() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ color: 'var(--vio-green)', fontSize: '13px' }}>L'orchestra sta elaborando</span>
-              <span className="dots-loading" style={{ color: 'var(--vio-green)' }}>...</span>
+              <span style={{ color: 'var(--vio-green)', animation: 'pulse 1.5s infinite' }}>...</span>
             </div>
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
-
       <ChatInput onSend={handleSend} />
     </div>
   );
