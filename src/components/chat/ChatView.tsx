@@ -76,6 +76,7 @@ export default function ChatView() {
         crossCheckEnabled: settings.orchestrator.crossCheckEnabled,
         apiKeys,
         ollamaHost: settings.ollamaHost,
+        ollamaModel: settings.ollamaModel || 'qwen2.5-coder:3b',
       }, onToken);
 
       // Aggiungi risposta finale

@@ -1,16 +1,22 @@
 // VIO 83 AI ORCHESTRA - Input Chat con selettore modello
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Zap, Cloud, HardDrive } from 'lucide-react';
+import { Send, Loader2, Zap, Cloud, HardDrive, Cpu } from 'lucide-react';
 import { useAppStore } from '../../stores/appStore';
 import type { AIProvider } from '../../types';
 
-const providers: { id: AIProvider; name: string; icon: string }[] = [
+// Modelli Ollama disponibili localmente (su MacBook Air M1 8GB)
+const OLLAMA_MODELS = [
+  { id: 'qwen2.5-coder:3b', name: 'Qwen Coder 3B', desc: 'Codice — veloce', ram: '~2GB' },
+  { id: 'llama3.2:3b', name: 'Llama 3.2 3B', desc: 'Generale — bilanciato', ram: '~2GB' },
+  { id: 'gemma2:2b', name: 'Gemma 2 2B', desc: 'Leggero — rapido', ram: '~1.5GB' },
+];
+
+const cloudProviders: { id: AIProvider; name: string; icon: string }[] = [
   { id: 'claude', name: 'Claude', icon: '🟠' },
   { id: 'gpt4', name: 'GPT-4', icon: '🟢' },
   { id: 'grok', name: 'Grok', icon: '🔵' },
   { id: 'mistral', name: 'Mistral', icon: '🟣' },
   { id: 'deepseek', name: 'DeepSeek', icon: '🩷' },
-  { id: 'ollama', name: 'Locale', icon: '💚' },
 ];
 
 interface ChatInputProps {
@@ -21,8 +27,9 @@ interface ChatInputProps {
 export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { settings, setMode, setProvider, isStreaming } = useAppStore();
+  const { settings, setMode, setProvider, setOllamaModel, isStreaming } = useAppStore();
   const { mode, primaryProvider } = settings.orchestrator;
+  const currentOllamaModel = settings.ollamaModel || 'qwen2.5-coder:3b';
 
   // Auto-resize textarea
   useEffect(() => {
@@ -46,13 +53,15 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
     }
   };
 
+  const currentModelInfo = OLLAMA_MODELS.find(m => m.id === currentOllamaModel);
+
   return (
     <div style={{
       borderTop: '1px solid var(--vio-border)',
       backgroundColor: 'var(--vio-bg-secondary)',
       padding: '12px 20px',
     }}>
-      {/* Mode + Provider selector */}
+      {/* Mode + Provider/Model selector */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -81,8 +90,47 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           {mode === 'cloud' ? 'Cloud' : 'Locale'}
         </button>
 
-        {/* Provider buttons (only in cloud mode) */}
-        {mode === 'cloud' && providers.filter(p => p.id !== 'ollama').map(p => (
+        {/* === LOCAL MODE: Ollama model selector === */}
+        {mode === 'local' && OLLAMA_MODELS.map(model => (
+          <button
+            key={model.id}
+            onClick={() => setOllamaModel(model.id)}
+            title={`${model.desc} (${model.ram})`}
+            style={{
+              padding: '4px 10px',
+              borderRadius: '16px',
+              border: `1px solid ${currentOllamaModel === model.id ? 'var(--vio-green)' : 'var(--vio-border)'}`,
+              backgroundColor: currentOllamaModel === model.id ? 'rgba(0,255,0,0.1)' : 'transparent',
+              color: currentOllamaModel === model.id ? 'var(--vio-green)' : 'var(--vio-text-secondary)',
+              cursor: 'pointer',
+              fontSize: '11px',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            <Cpu size={10} />
+            {model.name}
+          </button>
+        ))}
+
+        {mode === 'local' && (
+          <span style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '11px',
+            color: 'var(--vio-green-dim)',
+            marginLeft: 'auto',
+          }}>
+            <HardDrive size={11} />
+            Ollama {currentModelInfo ? `— ${currentModelInfo.ram}` : ''}
+          </span>
+        )}
+
+        {/* === CLOUD MODE: Provider buttons === */}
+        {mode === 'cloud' && cloudProviders.map(p => (
           <button
             key={p.id}
             onClick={() => setProvider(p.id)}
@@ -127,9 +175,9 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={mode === 'cloud'
-            ? `Scrivi un messaggio... (${primaryProvider === 'claude' ? 'Claude' : providers.find(p => p.id === primaryProvider)?.name})`
-            : 'Scrivi un messaggio... (Ollama locale)'
+          placeholder={mode === 'local'
+            ? `Scrivi un messaggio... (${currentModelInfo?.name || 'Ollama'})`
+            : `Scrivi un messaggio... (${cloudProviders.find(p => p.id === primaryProvider)?.name || 'Cloud'})`
           }
           disabled={disabled || isStreaming}
           rows={1}

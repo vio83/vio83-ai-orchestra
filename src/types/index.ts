@@ -58,6 +58,7 @@ export interface AppSettings {
   orchestrator: OrchestratorConfig;
   apiKeys: APIKeyConfig[];
   ollamaHost: string;
+  ollamaModel: string;
   fontSize: number;
 }
 

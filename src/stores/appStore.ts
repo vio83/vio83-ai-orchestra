@@ -23,10 +23,12 @@ interface AppState {
   updateSettings: (settings: Partial<AppSettings>) => void;
   setMode: (mode: AIMode) => void;
   setProvider: (provider: AIProvider) => void;
+  setOllamaModel: (model: string) => void;
   toggleSidebar: () => void;
   toggleSettings: () => void;
   setStreaming: (streaming: boolean) => void;
   deleteConversation: (id: string) => void;
+  resetToLocal: () => void;
 }
 
 const defaultSettings: AppSettings = {
@@ -35,15 +37,19 @@ const defaultSettings: AppSettings = {
   orchestrator: {
     mode: 'local',
     primaryProvider: 'ollama',
-    fallbackProviders: ['claude', 'gpt4'],
+    fallbackProviders: [],
     crossCheckEnabled: false,
     ragEnabled: false,
-    autoRouting: true,
+    autoRouting: false,
   },
   apiKeys: [],
   ollamaHost: 'http://localhost:11434',
+  ollamaModel: 'qwen2.5-coder:3b',
   fontSize: 14,
 };
+
+// Versione dello schema — incrementa per forzare reset dei settings corrotti
+const STORE_VERSION = 2;
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -57,13 +63,16 @@ export const useAppStore = create<AppState>()(
 
       createConversation: () => {
         const id = crypto.randomUUID();
+        const s = get().settings;
         const newConv: Conversation = {
           id,
           title: 'Nuova conversazione',
           messages: [],
-          model: get().settings.orchestrator.mode === 'local' ? 'qwen2.5-coder:3b' : 'claude-sonnet-4-20250514',
-          provider: get().settings.orchestrator.primaryProvider,
-          mode: get().settings.orchestrator.mode,
+          model: s.orchestrator.mode === 'local'
+            ? (s.ollamaModel || 'qwen2.5-coder:3b')
+            : 'claude-sonnet-4-20250514',
+          provider: s.orchestrator.primaryProvider,
+          mode: s.orchestrator.mode,
           createdAt: Date.now(),
           updatedAt: Date.now(),
         };
@@ -107,6 +116,7 @@ export const useAppStore = create<AppState>()(
               ...state.settings.orchestrator,
               mode,
               primaryProvider: mode === 'local' ? 'ollama' : 'claude',
+              autoRouting: mode === 'cloud',
             },
           },
         }));
@@ -124,6 +134,15 @@ export const useAppStore = create<AppState>()(
         }));
       },
 
+      setOllamaModel: (model) => {
+        set(state => ({
+          settings: {
+            ...state.settings,
+            ollamaModel: model,
+          },
+        }));
+      },
+
       toggleSidebar: () => set(state => ({ sidebarOpen: !state.sidebarOpen })),
       toggleSettings: () => set(state => ({ settingsOpen: !state.settingsOpen })),
       setStreaming: (streaming) => set({ isStreaming: streaming }),
@@ -134,7 +153,39 @@ export const useAppStore = create<AppState>()(
           activeConversationId: state.activeConversationId === id ? null : state.activeConversationId,
         }));
       },
+
+      resetToLocal: () => {
+        set(state => ({
+          settings: {
+            ...state.settings,
+            orchestrator: {
+              ...defaultSettings.orchestrator,
+            },
+            ollamaModel: state.settings.ollamaModel || defaultSettings.ollamaModel,
+          },
+        }));
+      },
     }),
-    { name: 'vio83-ai-orchestra-storage' }
+    {
+      name: 'vio83-ai-orchestra-storage',
+      version: STORE_VERSION,
+      migrate: (persistedState: any, version: number) => {
+        // Se la versione è vecchia, resetta i settings orchestrator a local
+        if (version < STORE_VERSION) {
+          console.log('[VIO83] Migrazione store: reset a modalità locale');
+          return {
+            ...persistedState,
+            settings: {
+              ...defaultSettings,
+              // Mantieni le conversazioni e le API keys se esistono
+              apiKeys: persistedState?.settings?.apiKeys || [],
+              ollamaHost: persistedState?.settings?.ollamaHost || defaultSettings.ollamaHost,
+              ollamaModel: persistedState?.settings?.ollamaModel || defaultSettings.ollamaModel,
+            },
+          };
+        }
+        return persistedState;
+      },
+    }
   )
 );
