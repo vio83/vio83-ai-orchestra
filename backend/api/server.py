@@ -46,7 +46,15 @@ try:
     from backend.rag.engine import get_rag_engine, RAGSource
     RAG_AVAILABLE = True
 except Exception as e:
-    print(f"⚠️  RAG Engine non disponibile: {e}")
+    print(f"⚠️  RAG Engine legacy non disponibile: {e}")
+
+# Knowledge Base v2 — sempre disponibile (fallback a SQLite FTS5)
+KB_AVAILABLE = False
+try:
+    from backend.rag.knowledge_base import get_knowledge_base, KnowledgeBase
+    KB_AVAILABLE = True
+except Exception as e:
+    print(f"⚠️  Knowledge Base non disponibile: {e}")
 
 load_dotenv()
 START_TIME = time.time()
@@ -60,16 +68,29 @@ async def lifespan(app: FastAPI):
     # Inizializza database
     init_database()
 
-    # Check RAG
+    # Knowledge Base v2 (sempre disponibile — SQLite FTS5 fallback)
+    if KB_AVAILABLE:
+        try:
+            kb = get_knowledge_base()
+            stats = kb.get_stats()
+            print(f"📚 Knowledge Base v2: {stats['fts_chunks']} chunk FTS, "
+                  f"{stats['chromadb_chunks']} chunk ChromaDB, "
+                  f"embedding: {stats['embedding_mode']}")
+        except Exception as e:
+            print(f"⚠️  Knowledge Base init fallita: {e}")
+    else:
+        print("📚 Knowledge Base: non disponibile")
+
+    # RAG legacy
     if RAG_AVAILABLE:
         try:
             rag = get_rag_engine()
             rag.initialize()
-            print(f"📚 RAG Engine: {rag.get_stats()['total_documents']} documenti")
+            print(f"📚 RAG Legacy: {rag.get_stats()['total_documents']} documenti")
         except Exception as e:
             print(f"⚠️  RAG init fallita: {e}")
     else:
-        print("📚 RAG Engine: disabilitato (ChromaDB non compatibile con Python 3.14)")
+        print("📚 RAG Legacy: disabilitato")
 
     # Check Ollama
     ollama_status = await check_ollama_status()
@@ -253,6 +274,24 @@ async def chat_stream(request: ChatRequest):
     if not has_system:
         req_type = _classify(request.message)
         system_prompt = build_system_prompt(req_type)
+
+        # === RAG CONTEXT INJECTION ===
+        # Cerca nella Knowledge Base e inietta fonti certificate nel contesto
+        if KB_AVAILABLE:
+            try:
+                kb = get_knowledge_base()
+                rag_ctx = kb.build_rag_context(request.message, max_context_tokens=1500)
+                if rag_ctx.get("has_context") and rag_ctx.get("context_text"):
+                    system_prompt += (
+                        f"\n\n=== FONTI CERTIFICATE DALLA KNOWLEDGE BASE ===\n"
+                        f"Dominio: {rag_ctx['domain']} | Confidenza: {rag_ctx['confidence']}\n"
+                        f"Usa queste fonti per supportare e verificare la tua risposta:\n\n"
+                        f"{rag_ctx['context_text']}\n"
+                        f"=== FINE FONTI ==="
+                    )
+            except Exception as e:
+                print(f"[KB] Errore context injection: {e}")
+
         messages.insert(0, {"role": "system", "content": system_prompt})
 
     model = request.model or "llama3.2:3b"
@@ -487,6 +526,129 @@ async def rag_stats():
         return {"total_documents": 0, "status": "disabled", "reason": "ChromaDB non compatibile"}
     rag = get_rag_engine()
     return rag.get_stats()
+
+
+# ═══════════════════════════════════════════════
+# KNOWLEDGE BASE v2 — Biblioteca Digitale Completa
+# ═══════════════════════════════════════════════
+
+@app.get("/kb/stats")
+async def kb_stats():
+    """Statistiche Knowledge Base — biblioteca digitale."""
+    if not KB_AVAILABLE:
+        return {"status": "disabled", "reason": "Knowledge Base non inizializzata"}
+    kb = get_knowledge_base()
+    return kb.get_stats()
+
+
+@app.post("/kb/ingest/text")
+async def kb_ingest_text(
+    text: str,
+    title: str = "",
+    author: str = "",
+    source_type: str = "manual",
+    reliability: float = 1.0,
+):
+    """Ingesci testo diretto nella knowledge base."""
+    if not KB_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Knowledge Base non disponibile")
+    kb = get_knowledge_base()
+    chunk_count = kb.ingest_text(
+        text=text, title=title, author=author,
+        source_type=source_type, reliability=reliability,
+    )
+    return {"status": "ok", "chunks_created": chunk_count, "title": title}
+
+
+@app.post("/kb/ingest/file")
+async def kb_ingest_file(
+    filepath: str,
+    source_type: str = "book",
+    reliability: float = 1.0,
+):
+    """Ingesci un file nella knowledge base (PDF, DOCX, EPUB, TXT, HTML, JSON, CSV)."""
+    if not KB_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Knowledge Base non disponibile")
+    if not os.path.exists(filepath):
+        raise HTTPException(status_code=404, detail=f"File non trovato: {filepath}")
+    kb = get_knowledge_base()
+    doc = kb.ingest_file(filepath, source_type=source_type, reliability=reliability)
+    return {
+        "status": doc.status,
+        "doc_id": doc.doc_id,
+        "filename": doc.filename,
+        "file_type": doc.file_type,
+        "title": doc.title,
+        "author": doc.author,
+        "language": doc.language,
+        "word_count": doc.word_count,
+        "chunk_count": doc.chunk_count,
+        "error": doc.error,
+    }
+
+
+@app.post("/kb/ingest/directory")
+async def kb_ingest_directory(
+    directory: str,
+    recursive: bool = True,
+    source_type: str = "book",
+    reliability: float = 1.0,
+):
+    """Ingesci tutti i file da una directory nella knowledge base."""
+    if not KB_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Knowledge Base non disponibile")
+    if not os.path.isdir(directory):
+        raise HTTPException(status_code=404, detail=f"Directory non trovata: {directory}")
+    kb = get_knowledge_base()
+    docs = kb.ingest_directory(directory, recursive=recursive,
+                                source_type=source_type, reliability=reliability)
+    return {
+        "status": "ok",
+        "files_processed": len([d for d in docs if d.status == "success"]),
+        "files_failed": len([d for d in docs if d.status == "error"]),
+        "total_chunks": sum(d.chunk_count for d in docs),
+        "total_words": sum(d.word_count for d in docs),
+        "details": [
+            {"filename": d.filename, "status": d.status,
+             "chunks": d.chunk_count, "error": d.error}
+            for d in docs
+        ],
+    }
+
+
+@app.post("/kb/query")
+async def kb_query(
+    question: str,
+    n_results: int = 10,
+    min_reliability: float = 0.5,
+    domain_filter: Optional[str] = None,
+):
+    """Cerca nella knowledge base con retrieval semantico + reranking."""
+    if not KB_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Knowledge Base non disponibile")
+    kb = get_knowledge_base()
+    results = kb.query(
+        question=question, n_results=n_results,
+        min_reliability=min_reliability, domain_filter=domain_filter,
+    )
+    return {"query": question, "results": results, "count": len(results)}
+
+
+@app.post("/kb/context")
+async def kb_build_context(
+    question: str,
+    max_context_tokens: int = 2000,
+    n_results: int = 5,
+):
+    """Costruisci contesto RAG per una domanda (da iniettare nel prompt AI)."""
+    if not KB_AVAILABLE:
+        return {"context_text": "", "sources": [], "has_context": False}
+    kb = get_knowledge_base()
+    return kb.build_rag_context(
+        question=question,
+        max_context_tokens=max_context_tokens,
+        n_results=n_results,
+    )
 
 
 # ═══════════════════════════════════════════════
