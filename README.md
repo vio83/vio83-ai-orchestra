@@ -22,7 +22,7 @@
   <img src="https://img.shields.io/badge/Tauri_2.0-Rust_+_WebView-FFC131?style=flat-square&logo=tauri" />
   <img src="https://img.shields.io/badge/React_19-TypeScript-61DAFB?style=flat-square&logo=react" />
   <img src="https://img.shields.io/badge/LiteLLM-100+_Providers-FF6B6B?style=flat-square" />
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" />
+  <img src="https://img.shields.io/badge/License-Proprietary_+_AGPL--3.0-red?style=flat-square" />
 </p>
 
 <p align="center">
@@ -54,7 +54,7 @@
 | Works 100% offline | ❌ | ❌ | ✅ **Ollama local models** |
 | Desktop native app | ❌ Web only | ❌ Web only | ✅ **Tauri 2.0 (2MB app!)** |
 | Privacy-first | ❌ Cloud only | ❌ Cloud only | ✅ **Your data stays on your Mac** |
-| Open source | ❌ | ❌ | ✅ **MIT License** |
+| Source-available | ❌ | ❌ | ✅ **View code, dual-licensed** |
 
 ---
 
@@ -239,64 +239,97 @@ USER types a question
 
 <p align="center">
   <a href="https://github.com/sponsors/vio83">
-    <img src="https://img.shields.io/badge/GitHub_Sponsors-Support_VIO_83-ea4aaa?style=for-the-badge&logo=github-sponsors" />
+    <img src="https://img.shields.io/badge/GitHub_Sponsors-Become_a_Sponsor-ea4aaa?style=for-the-badge&logo=github-sponsors" />
   </a>
   &nbsp;&nbsp;
   <a href="https://ko-fi.com/vio83">
-    <img src="https://img.shields.io/badge/Ko--fi-Buy_me_a_coffee-FF5E5B?style=for-the-badge&logo=ko-fi" />
+    <img src="https://img.shields.io/badge/Ko--fi-Support_on_Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://www.linkedin.com/in/viorica-porcu-637735139">
+    <img src="https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin" />
   </a>
 </p>
 
-VIO 83 AI Orchestra is built with passion by **one independent developer** on a MacBook Air M1 with 8GB RAM. Every sponsorship directly funds:
+### The Story
 
-- 🖥 **Better hardware** — A Mac Studio M4 Ultra (192GB RAM) for running larger models locally and faster development
-- 🧪 **API costs** — Testing all cloud providers costs real money
-- ⏰ **Full-time development** — More time = faster features
-- 🌍 **Keeping it open source** — Forever free for the community
+I'm **Viorica**, a solo developer from Italy building this on a **MacBook Air M1 with 8GB RAM**. No VC funding. No team. No salary. Just pure determination and 16-hour coding sessions.
+
+I'm building VIO 83 because I believe access to intelligent AI should not require 5 separate subscriptions, and that **verified, trustworthy answers** matter more than fast, unverified ones.
+
+### What Your Sponsorship Funds
+
+| Priority | Need | Why It Matters |
+|----------|------|----------------|
+| **#1 Critical** | API costs (Claude, GPT-4, Grok) | Testing all providers requires real API credits every day |
+| **#2 Hardware** | Mac Studio M4 Ultra (192GB) | Current M1 8GB cannot run large local models — limits development severely |
+| **#3 Time** | Full-time development | More hours = faster features, better quality |
+| **#4 Infrastructure** | Server for the Knowledge Base | 250M+ academic papers need storage and processing power |
+
+### Current Progress (Live)
+
+```
+Backend Engine:       ████████████████░░░░  85%  (15 modules, all tested)
+Knowledge Base:       ██░░░░░░░░░░░░░░░░░░  10%  (10K docs, target 10M+)
+Frontend UI:          ██░░░░░░░░░░░░░░░░░░  10%  (Tauri initialized)
+API Connectors:       ██████░░░░░░░░░░░░░░  30%  (3/11 sources active)
+42-Category System:   ████████████████████  100% (1,082 sub-disciplines)
+```
 
 ### Sponsor Tiers
 
-| Tier | Amount | Perks |
-|------|--------|-------|
-| ☕ Coffee | $3/mo | Name in README + early access to releases |
-| 🎵 Musician | $10/mo | Above + priority feature requests + Discord role |
-| 🎼 Conductor | $25/mo | Above + monthly 1:1 call + custom routing rules |
-| 🏆 Patron | $100/mo | Above + your logo in the app + dedicated support |
+| Tier | Monthly | What You Get |
+|------|---------|--------------|
+| ☕ **Supporter** | $5 | Name in SPONSORS.md + early access to all releases |
+| 🎵 **Musician** | $15 | Above + priority on feature requests + private Discord channel |
+| 🎼 **Conductor** | $50 | Above + monthly video call with me + custom AI routing rules for your use case |
+| 🏆 **Patron** | $100 | Above + your logo in the app UI + dedicated support + influence on roadmap |
+| 🏢 **Enterprise** | $500 | Commercial license + custom deployment + 1:1 integration support |
 
-**Every dollar counts.** Even $3/month helps keep this project alive and growing.
+### Why Sponsor Now?
 
----
+This project has **16,255 lines of working code**, **20 commits**, a **real harvesting engine** that has already downloaded **10,000+ academic documents** from Crossref at 122 docs/sec, and a **42-category knowledge classification system** with 1,082 sub-disciplines that doesn't exist anywhere else.
 
-## 🤝 Contributing
-
-Contributions are welcome! Whether it's code, documentation, translations, or bug reports.
-
-```bash
-# Fork, clone, create branch
-git checkout -b feature/amazing-feature
-
-# Make changes, test
-npm run build
-
-# Submit PR
-git push origin feature/amazing-feature
-```
+Early sponsors get the best deal: **lifetime perks** at launch-era prices. When VIO 83 ships its first public release, these tiers will increase.
 
 ---
 
 ## 📄 License
 
-MIT License — free to use, modify, and distribute.
+**Dual Licensed:**
+
+| Use Case | License | What It Means |
+|----------|---------|---------------|
+| **Commercial** | [Proprietary](LICENSE-PROPRIETARY) | All Rights Reserved. Contact for licensing. |
+| **Open Source** | [AGPL-3.0](LICENSE-AGPL-3.0) | Free to use, must share source, network use = distribution |
+
+See [LICENSE](LICENSE) for full details. Copyright (c) 2026 Viorica Porcu (vio83).
+
+The source code is visible for transparency, but **unauthorized copying, modification, or commercial use is prohibited** without explicit written authorization. This project is protected under Italian copyright law (L. 633/1941), EU directives, and international treaties (Berne Convention, WIPO).
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome under the AGPL-3.0 license. By submitting a PR, you agree to license your contribution under the same dual-license terms.
+
+```bash
+git checkout -b feature/your-feature
+# Make changes, test thoroughly
+git push origin feature/your-feature
+# Submit PR with clear description
+```
 
 ---
 
 <p align="center">
-  <strong>Built with 💚 by Viorica (vio83) — 🇮🇹 Italy</strong><br>
-  <em>One developer. One vision. The entire AI world in one app.</em>
+  <strong>Built with determination by Viorica (vio83) — Italy</strong><br>
+  <em>One developer. One vision. The entire AI world in one app.</em><br>
+  <em>Copyright (c) 2026 Viorica Porcu. All Rights Reserved.</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Made_with-Passion-00ff00?style=flat-square" />
-  <img src="https://img.shields.io/badge/Powered_by-Music_🎵-ff00ff?style=flat-square" />
-  <img src="https://img.shields.io/badge/Running_on-MacBook_Air_M1-00ffff?style=flat-square" />
+  <img src="https://img.shields.io/badge/Made_in-Italy-008C45?style=flat-square" />
+  <img src="https://img.shields.io/badge/Status-Active_Development-00ff00?style=flat-square" />
+  <img src="https://img.shields.io/badge/Code-16,255_lines-blue?style=flat-square" />
 </p>
