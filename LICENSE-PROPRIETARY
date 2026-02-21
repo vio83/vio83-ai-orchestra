@@ -1,0 +1,127 @@
+PROPRIETARY SOFTWARE LICENSE
+VIO 83 AI ORCHESTRA
+====================================
+
+Copyright (c) 2026 Viorica Porcu (vio83). ALL RIGHTS RESERVED.
+
+NOTICE: This is proprietary software. The following terms apply to any
+person or entity that obtains a copy of this software and associated
+documentation files (the "Software").
+
+1. OWNERSHIP
+   The Software, including all source code, object code, algorithms,
+   data structures, database schemas, documentation, graphics, user
+   interfaces, and all related intellectual property, is the sole and
+   exclusive property of Viorica Porcu ("Owner").
+
+2. RESTRICTIONS — ALL OF THE FOLLOWING ARE STRICTLY PROHIBITED:
+
+   a) COPYING: You may NOT copy, reproduce, duplicate, or replicate
+      the Software or any portion thereof, in any form or by any means.
+
+   b) MODIFICATION: You may NOT modify, adapt, alter, translate,
+      decompile, disassemble, reverse-engineer, or create derivative
+      works based on the Software.
+
+   c) DISTRIBUTION: You may NOT distribute, sublicense, lease, rent,
+      loan, sell, resell, transfer, or otherwise make the Software
+      available to any third party.
+
+   d) COMMERCIAL USE: You may NOT use the Software, or any part of it,
+      for any commercial purpose without prior written authorization
+      from the Owner.
+
+   e) EXTRACTION: You may NOT extract, harvest, scrape, or otherwise
+      remove any data, algorithms, models, weights, or intellectual
+      property from the Software.
+
+   f) REPLICATION: You may NOT use the Software as a reference,
+      template, or basis for creating competing or substantially
+      similar software products.
+
+   g) PUBLIC DISPLAY: You may NOT publicly display, perform, broadcast,
+      or transmit the Software without prior written authorization.
+
+3. INTELLECTUAL PROPERTY
+
+   a) The name "VIO 83 AI Orchestra", the VIO83 brand, all associated
+      logos, icons, and visual identities are trademarks of the Owner.
+
+   b) The Knowledge Distillation Engine architecture, the 42-category
+      classification system with 1,082 sub-disciplines, and all
+      proprietary algorithms are trade secrets of the Owner.
+
+   c) All database schemas, API connector designs, and system
+      architecture patterns specific to this Software are protected
+      intellectual property.
+
+4. SOURCE CODE VISIBILITY
+
+   The fact that source code may be publicly visible on GitHub or any
+   other platform does NOT constitute a grant of license. Public
+   visibility is for transparency and portfolio purposes ONLY.
+   Viewing the code does NOT grant any right to use, copy, modify,
+   or distribute it.
+
+5. DATA AND DATABASES
+
+   All harvested, distilled, processed, or generated data produced
+   by the Software remains the property of the Owner. This includes
+   but is not limited to:
+   - The distilled knowledge database
+   - Classification indices
+   - Search indices
+   - Metadata collections
+   - Process monitoring logs
+
+6. THIRD-PARTY COMPONENTS
+
+   This Software may include or interact with third-party open-source
+   libraries. Such components retain their original licenses. This
+   proprietary license applies ONLY to original code, architecture,
+   and intellectual property created by the Owner.
+
+7. ENFORCEMENT
+
+   a) Any unauthorized use of the Software constitutes copyright
+      infringement under Italian law (Legge 22 aprile 1941, n. 633
+      — Legge sul diritto d'autore), European Union copyright
+      directives (Directive 2001/29/EC, Directive 2019/790/EU),
+      and international copyright treaties (Berne Convention,
+      WIPO Copyright Treaty).
+
+   b) The Owner reserves the right to pursue all available legal
+      remedies, including but not limited to: injunctive relief,
+      actual damages, statutory damages, and attorney's fees.
+
+   c) Criminal penalties may apply under Art. 171-bis and 171-ter
+      of Italian Copyright Law for unauthorized reproduction or
+      distribution of software.
+
+8. NO WARRANTY
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED. THE OWNER SHALL NOT BE LIABLE FOR ANY CLAIM,
+   DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+
+9. GOVERNING LAW
+
+   This license shall be governed by and construed in accordance
+   with the laws of the Italian Republic. Any disputes shall be
+   subject to the exclusive jurisdiction of the courts of Italy.
+
+10. COMMERCIAL LICENSING
+
+    For commercial licensing inquiries, partnership proposals, or
+    authorized use requests, contact:
+
+    Viorica Porcu
+    Email: porcu.v.83@gmail.com
+    GitHub: https://github.com/vio83
+
+--------------------------------------------------------------------
+EFFECTIVE DATE: February 20, 2026
+LAST UPDATED:   February 20, 2026
+COPYRIGHT HOLDER: Viorica Porcu (vio83)
+ALL RIGHTS RESERVED.
+--------------------------------------------------------------------

@@ -1,3 +1,8 @@
+# ============================================================
+# VIO 83 AI ORCHESTRA — Copyright (c) 2026 Viorica Porcu (vio83)
+# DUAL LICENSE: Proprietary + AGPL-3.0 — See LICENSE files
+# ALL RIGHTS RESERVED — https://github.com/vio83/vio83-ai-orchestra
+# ============================================================
 """
 VIO 83 AI ORCHESTRA - Direct Orchestrator (senza LiteLLM)
 Gestisce chiamate dirette a Ollama e provider cloud via HTTP.

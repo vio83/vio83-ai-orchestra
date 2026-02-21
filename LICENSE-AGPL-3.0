@@ -1,0 +1,54 @@
+GNU AFFERO GENERAL PUBLIC LICENSE
+Version 3, 19 November 2007
+
+Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+
+Everyone is permitted to copy and distribute verbatim copies of this
+license document, but changing it is not allowed.
+
+                            PREAMBLE
+
+The GNU Affero General Public License is a free, copyleft license for
+software and other kinds of works, specifically designed to ensure
+cooperation with the community in the case of network server software.
+
+For the full text of this license, see:
+https://www.gnu.org/licenses/agpl-3.0.txt
+
+============================================================
+APPLICAZIONE A VIO 83 AI ORCHESTRA
+============================================================
+
+Copyright (c) 2026 Viorica Porcu (vio83). All Rights Reserved.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+CONDIZIONI CHIAVE AGPL-3.0:
+1. COPYLEFT FORTE: Chiunque modifica e distribuisce DEVE rilasciare
+   il codice sorgente sotto la stessa licenza AGPL-3.0.
+2. NETWORK USE = DISTRIBUTION: Se usi il software su un server
+   accessibile via rete, DEVI fornire il codice sorgente agli utenti.
+3. ATTRIBUZIONE OBBLIGATORIA: Ogni copia deve mantenere i notice
+   di copyright originali.
+4. NESSUNA GARANZIA: Il software e' fornito "cosi com'e".
+5. BREVETTI: I contributori concedono licenza brevettuale automatica.
+
+Per il testo COMPLETO della licenza AGPL-3.0:
+https://www.gnu.org/licenses/agpl-3.0.txt
+https://opensource.org/licenses/AGPL-3.0
+
+Contatto: porcu.v.83@gmail.com
+GitHub:   https://github.com/vio83/vio83-ai-orchestra
